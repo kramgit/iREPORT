@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Manage Incidents - iREPORT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-body">
+    <!-- Fixed Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                <span>iREPORT</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-home"></i></span>
+                        <span class="nav-text">Home</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="{{ url_for('admin.manage_incidents') }}" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                        <span class="nav-text">Manage Incidents</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.analytics') }}" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.users') }}" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-text">User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-tags"></i></span>
+                        <span class="nav-text">Manage Categories</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-user"></i></span>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.reports') }}" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
+                        <span class="nav-text">Reports Management</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+                <div class="user-details">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+                <span class="nav-text">Log out</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <!-- Fixed Top Navbar -->
+        <div class="top-navbar">
+            <div class="navbar-left">
+                <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            </div>
+            
+            <div class="navbar-right">
+                <div class="search-box">
+                    <input type="text" placeholder="Search incidents..." class="search-input" id="incidentSearch">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="notifications">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                
+                <div class="admin-profile">
+                    <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
+                    <span class="profile-name">Admin</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Page Content -->
+        <div class="page-content">
+            <div class="content-header">
+                <h2></i> Manage Incidents</h2>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="exportIncidents()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                    <button class="btn-primary" onclick="openNewIncidentModal()">
+                        <i class="fas fa-plus"></i> New Incident
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Statistics Overview -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">TOTAL INCIDENTS</div>
+                        <div class="stat-number">{{ incidents|length }}</div>
+                        <div class="stat-sublabel">All Reports</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card pending">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">PENDING</div>
+                        <div class="stat-number">{{ incidents|selectattr('status', 'equalto', 'Pending')|list|length }}</div>
+                        <div class="stat-sublabel">Awaiting Review</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card investigating">
+                    <div class="stat-icon"><i class="fas fa-search"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">INVESTIGATING</div>
+                        <div class="stat-number">{{ incidents|selectattr('status', 'equalto', 'Investigating')|list|length }}</div>
+                        <div class="stat-sublabel">In Progress</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card resolved">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">RESOLVED</div>
+                        <div class="stat-number">{{ incidents|selectattr('status', 'equalto', 'Resolved')|list|length }}</div>
+                        <div class="stat-sublabel">Completed</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label for="statusFilter">Status:</label>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Investigating">Investigating</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="severityFilter">Severity:</label>
+                    <select id="severityFilter" class="filter-select">
+                        <option value="">All Severities</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="typeFilter">Type:</label>
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="Malware">Malware</option>
+                        <option value="Phishing">Phishing</option>
+                        <option value="Data Breach">Data Breach</option>
+                        <option value="Unauthorized Access">Unauthorized Access</option>
+                        <option value="Social Engineering">Social Engineering</option>
+                        <option value="Network">Network</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button class="btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Incidents Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Incident Reports</h3>
+                    <div class="table-controls">
+                        <div class="entries-per-page">
+                            <label for="entriesPerPage">Show:</label>
+                            <select id="entriesPerPage">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table" id="incidentsTable">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th class="sortable" data-sort="id">ID <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="title">Title <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="reporter">Reporter <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="type">Type <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="severity">Severity <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="status">Status <i class="fas fa-sort"></i></th>
+                                <th class="sortable" data-sort="date">Date <i class="fas fa-sort"></i></th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for incident in incidents %}
+                            <tr data-incident-id="{{ incident.id }}">
+                                <td><input type="checkbox" class="row-checkbox" value="{{ incident.id }}"></td>
+                                <td><strong>{{ incident.id }}</strong></td>
+                                <td class="incident-title">{{ incident.title }}</td>
+                                <td>{{ incident.reporter }}</td>
+                                <td><span class="type-badge type-{{ incident.type.lower().replace(' ', '-') }}">{{ incident.type }}</span></td>
+                                <td><span class="severity {{ incident.severity.lower() }}">{{ incident.severity }}</span></td>
+                                <td><span class="status {{ incident.status.lower() }}">{{ incident.status }}</span></td>
+                                <td class="date-cell">{{ incident.date }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-small btn-view" onclick="viewIncident('{{ incident.id }}')" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn-small btn-edit" onclick="editIncident('{{ incident.id }}')" title="Edit Incident">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-small btn-assign" onclick="assignIncident('{{ incident.id }}')" title="Assign to Analyst">
+                                            <i class="fas fa-user-plus"></i>
+                                        </button>
+                                        <button class="btn-small btn-delete" onclick="deleteIncident('{{ incident.id }}')" title="Delete Incident">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-footer">
+                    <div class="table-info">
+                        <span id="tableInfo">Showing 1-{{ incidents|length }} of {{ incidents|length }} incidents</span>
+                    </div>
+                    
+                    <div class="bulk-actions">
+                        <select id="bulkAction" class="bulk-select">
+                            <option value="">Bulk Actions</option>
+                            <option value="assign">Assign Selected</option>
+                            <option value="status-change">Change Status</option>
+                            <option value="export-selected">Export Selected</option>
+                            <option value="delete">Delete Selected</option>
+                        </select>
+                        <button class="btn-secondary" onclick="executeBulkAction()">Apply</button>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="pagination-controls">
+                            <button class="page-btn" id="prevPage" disabled>Previous</button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn" id="nextPage" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        /* Additional Styles for Manage Incidents Page */
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .filter-group label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        
+        .type-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        
+        .type-malware { background: #ffebee; color: #c62828; }
+        .type-phishing { background: #e3f2fd; color: #1565c0; }
+        .type-data-breach { background: #fff3e0; color: #ef6c00; }
+        .type-unauthorized-access { background: #fce4ec; color: #ad1457; }
+        .type-social-engineering { background: #f3e5f5; color: #7b1fa2; }
+        .type-network { background: #e8f5e8; color: #2e7d32; }
+        
+        .table-controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .entries-per-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .entries-per-page select {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .sortable {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .sortable:hover {
+            background: #f8f9fa;
+        }
+        
+        .sortable i {
+            margin-left: 5px;
+            color: #999;
+        }
+        
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .table-info {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .bulk-select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .btn-assign {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-assign:hover {
+            background: #138496;
+        }
+        
+        .incident-title {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .table-footer {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+        }
+    </style>
+    
+    <script>
+        // Search functionality
+        document.getElementById('incidentSearch').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#incidentsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        // Filter functionality
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const severityFilter = document.getElementById('severityFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const rows = document.querySelectorAll('#incidentsTable tbody tr');
+            
+            rows.forEach(row => {
+                const status = row.querySelector('.status').textContent;
+                const severity = row.querySelector('.severity').textContent;
+                const type = row.querySelector('.type-badge').textContent;
+                
+                const matchesStatus = !statusFilter || status === statusFilter;
+                const matchesSeverity = !severityFilter || severity === severityFilter;
+                const matchesType = !typeFilter || type === typeFilter;
+                
+                row.style.display = matchesStatus && matchesSeverity && matchesType ? '' : 'none';
+            });
+        }
+        
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('severityFilter').addEventListener('change', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        
+        function clearFilters() {
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('severityFilter').value = '';
+            document.getElementById('typeFilter').value = '';
+            applyFilters();
+        }
+        
+        // Select all functionality
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(cb => cb.checked = this.checked);
+        });
+        
+        // Action functions
+        function viewIncident(id) {
+            alert(`Viewing incident ${id}`);
+            // Implementation for viewing incident details
+        }
+        
+        function editIncident(id) {
+            alert(`Editing incident ${id}`);
+            // Implementation for editing incident
+        }
+        
+        function assignIncident(id) {
+            alert(`Assigning incident ${id}`);
+            // Implementation for assigning incident
+        }
+        
+        function deleteIncident(id) {
+            if (confirm(`Are you sure you want to delete incident ${id}?`)) {
+                alert(`Deleting incident ${id}`);
+                // Implementation for deleting incident
+            }
+        }
+        
+        function openNewIncidentModal() {
+            alert('Opening new incident form');
+            // Implementation for new incident modal
+        }
+        
+        function exportIncidents() {
+            alert('Exporting incidents data');
+            // Implementation for exporting data
+        }
+        
+        function executeBulkAction() {
+            const action = document.getElementById('bulkAction').value;
+            const selected = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => cb.value);
+            
+            if (!action) {
+                alert('Please select an action');
+                return;
+            }
+            
+            if (selected.length === 0) {
+                alert('Please select at least one incident');
+                return;
+            }
+            
+            alert(`Executing ${action} on incidents: ${selected.join(', ')}`);
+            // Implementation for bulk actions
+        }
+        
+        // Table sorting
+        document.querySelectorAll('.sortable').forEach(header => {
+            header.addEventListener('click', function() {
+                const table = document.getElementById('incidentsTable');
+                const tbody = table.querySelector('tbody');
+                const rows = Array.from(tbody.querySelectorAll('tr'));
+                const column = this.dataset.sort;
+                const currentDirection = this.dataset.direction || 'asc';
+                const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                
+                // Update sort direction
+                this.dataset.direction = newDirection;
+                
+                // Update sort icons
+                document.querySelectorAll('.sortable i').forEach(icon => {
+                    icon.className = 'fas fa-sort';
+                });
+                this.querySelector('i').className = newDirection === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                
+                // Sort rows
+                rows.sort((a, b) => {
+                    let aVal, bVal;
+                    
+                    switch(column) {
+                        case 'id':
+                            aVal = a.querySelector('td:nth-child(2)').textContent;
+                            bVal = b.querySelector('td:nth-child(2)').textContent;
+                            break;
+                        case 'title':
+                            aVal = a.querySelector('.incident-title').textContent;
+                            bVal = b.querySelector('.incident-title').textContent;
+                            break;
+                        case 'reporter':
+                            aVal = a.querySelector('td:nth-child(4)').textContent;
+                            bVal = b.querySelector('td:nth-child(4)').textContent;
+                            break;
+                        case 'type':
+                            aVal = a.querySelector('.type-badge').textContent;
+                            bVal = b.querySelector('.type-badge').textContent;
+                            break;
+                        case 'severity':
+                            aVal = a.querySelector('.severity').textContent;
+                            bVal = b.querySelector('.severity').textContent;
+                            break;
+                        case 'status':
+                            aVal = a.querySelector('.status').textContent;
+                            bVal = b.querySelector('.status').textContent;
+                            break;
+                        case 'date':
+                            aVal = new Date(a.querySelector('.date-cell').textContent);
+                            bVal = new Date(b.querySelector('.date-cell').textContent);
+                            break;
+                        default:
+                            return 0;
+                    }
+                    
+                    if (aVal < bVal) return newDirection === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return newDirection === 'asc' ? 1 : -1;
+                    return 0;
+                });
+                
+                // Re-append sorted rows
+                rows.forEach(row => tbody.appendChild(row));
+            });
+        });
+    </script>
+</body>
+</html>

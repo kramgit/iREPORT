@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ Admin Dashboard - iREPORT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-body">
+    <!-- Fixed Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-shield-alt"></i></div>
+                <span>iREPORT</span>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-menu">
+                <li class="nav-item active">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-home"></i></span>
+                        <span class="nav-text">Home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin.manage_incidents') }}" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                        <span class="nav-text">Manage Incidents</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="nav-text">Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-text">User Management</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-tags"></i></span>
+                        <span class="nav-text">Manage Categories</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-user"></i></span>
+                        <span class="nav-text">Profile</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-file-alt"></i></span>
+                        <span class="nav-text">Reports Management</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar"><i class="fas fa-user-circle"></i></div>
+                <div class="user-details">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+            </div>
+            <a href="{{ url_for('main.index') }}" class="logout-btn">
+                <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+                <span class="nav-text">Logout</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+        <!-- Fixed Top Navbar -->
+        <div class="top-navbar">
+            <div class="navbar-left">
+                <button class="sidebar-toggle"><i class="fas fa-bars"></i></button>
+            </div>
+            
+            <div class="navbar-right">
+                <div class="search-box">
+                    <input type="text" placeholder="Search..." class="search-input">
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="notifications">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                
+                <div class="admin-profile">
+                    <div class="profile-avatar"><i class="fas fa-user-circle"></i></div>
+                    <span class="profile-name">Admin</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Page Content -->
+        <div class="page-content">
+            <div class="content-header">
+                <h2>Home</h2>
+                <button class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh Charts</button>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">TOTAL INCIDENTS</div>
+                        <div class="stat-number">9</div>
+                        <div class="stat-sublabel">All Reports</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card pending">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">PENDING</div>
+                        <div class="stat-number">5</div>
+                        <div class="stat-sublabel">Waiting</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card investigating">
+                    <div class="stat-icon"><i class="fas fa-search"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">INVESTIGATING</div>
+                        <div class="stat-number">2</div>
+                        <div class="stat-sublabel">In Progress</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card resolved">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-content">
+                        <div class="stat-label">RESOLVED</div>
+                        <div class="stat-number">1</div>
+                        <div class="stat-sublabel">Closed</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-bar"></i> Monthly Incident Count (Jan - Dec)</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3><i class="fas fa-chart-pie"></i> Incident Category Distribution</h3>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Reports Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> Recent Incident Reports</h3>
+                    <div class="table-actions">
+                        <button class="btn-secondary"><i class="fas fa-download"></i> Export</button>
+                        <button class="btn-primary"><i class="fas fa-plus"></i> New Report</button>
+                    </div>
+                </div>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Reporter</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Date Reported</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#IR-2024-001</td>
+                            <td>Phishing Email Campaign Detected</td>
+                            <td>john.doe@company.com</td>
+                            <td><span class="severity high">High</span></td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>2024-07-19 10:30</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-small btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#IR-2024-002</td>
+                            <td>Malware Infection on Workstation</td>
+                            <td>jane.smith@company.com</td>
+                            <td><span class="severity critical">Critical</span></td>
+                            <td><span class="status investigating">Investigating</span></td>
+                            <td>2024-07-19 09:15</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-small btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#IR-2024-003</td>
+                            <td>Unauthorized Access Attempt</td>
+                            <td>mike.wilson@company.com</td>
+                            <td><span class="severity medium">Medium</span></td>
+                            <td><span class="status investigating">Investigating</span></td>
+                            <td>2024-07-18 16:45</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-small btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#IR-2024-004</td>
+                            <td>Suspicious Network Traffic</td>
+                            <td>sarah.johnson@company.com</td>
+                            <td><span class="severity low">Low</span></td>
+                            <td><span class="status resolved">Resolved</span></td>
+                            <td>2024-07-18 14:20</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-small btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#IR-2024-005</td>
+                            <td>Data Breach Attempt</td>
+                            <td>alex.brown@company.com</td>
+                            <td><span class="severity high">High</span></td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>2024-07-17 11:30</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-small btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>#IR-2024-006</td>
+                            <td>Social Engineering Attack</td>
+                            <td>lisa.davis@company.com</td>
+                            <td><span class="severity medium">Medium</span></td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>2024-07-17 09:45</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view"><i class="fas fa-eye"></i> View</button>
+                                    <button class="btn-small btn-edit"><i class="fas fa-edit"></i> Edit</button>
+                                    <button class="btn-small btn-delete"><i class="fas fa-trash"></i> Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="pagination">
+                    <div class="pagination-info">
+                        Showing 1-6 of 9 incidents
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="page-btn">Previous</button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Chart.js Global Configuration
+        Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        Chart.defaults.color = '#6c757d';
+        
+        // Monthly Incident Count Bar Chart
+        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+        const monthlyChart = new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Incident Count (2025)',
+                    data: [0, 0, 0, 0, 0, 2, 7, 0, 0, 0, 0, 0],
+                    backgroundColor: '#4A90E2',
+                    borderColor: '#357abd',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#4A90E2',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        displayColors: false,
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label + ' 2025';
+                            },
+                            label: function(context) {
+                                return 'Incidents: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 8,
+                        ticks: {
+                            stepSize: 1,
+                            color: '#6c757d',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: '#e9ecef',
+                            borderColor: '#dee2e6'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#6c757d',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+        
+        // Incident Category Distribution Pie Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        const categoryChart = new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Malware', 'Phishing', 'Unauthorized Access', 'Data Breach', 'Social Engineering'],
+                datasets: [{
+                    data: [35, 25, 20, 12, 8],
+                    backgroundColor: [
+                        '#2ECC71',
+                        '#3498DB', 
+                        '#F39C12',
+                        '#E74C3C',
+                        '#9B59B6'
+                    ],
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                weight: '500'
+                            },
+                            color: '#2c3e50'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: '#4A90E2',
+                        borderWidth: 1,
+                        cornerRadius: 6,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '60%',
+                animation: {
+                    animateRotate: true,
+                    duration: 1000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+        
+        // Refresh Charts Function
+        function refreshCharts() {
+            // Simulate new data
+            const newMonthlyData = [
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 5),
+                Math.floor(Math.random() * 8),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3),
+                Math.floor(Math.random() * 3)
+            ];
+            
+            const newCategoryData = [
+                30 + Math.floor(Math.random() * 10),
+                20 + Math.floor(Math.random() * 10),
+                15 + Math.floor(Math.random() * 10),
+                10 + Math.floor(Math.random() * 8),
+                5 + Math.floor(Math.random() * 8)
+            ];
+            
+            // Update charts
+            monthlyChart.data.datasets[0].data = newMonthlyData;
+            categoryChart.data.datasets[0].data = newCategoryData;
+            
+            monthlyChart.update('active');
+            categoryChart.update('active');
+            
+            // Update statistics cards
+            updateStatistics();
+        }
+        
+        // Update Statistics Function
+        function updateStatistics() {
+            const totalIncidents = Math.floor(Math.random() * 5) + 7;
+            const pending = Math.floor(Math.random() * 3) + 3;
+            const investigating = Math.floor(Math.random() * 3) + 1;
+            const resolved = totalIncidents - pending - investigating;
+            
+            document.querySelector('.stat-card.total .stat-number').textContent = totalIncidents;
+            document.querySelector('.stat-card.pending .stat-number').textContent = pending;
+            document.querySelector('.stat-card.investigating .stat-number').textContent = investigating;
+            document.querySelector('.stat-card.resolved .stat-number').textContent = resolved;
+        }
+        
+        // Add click event to refresh button
+        document.querySelector('.refresh-btn').addEventListener('click', function() {
+            this.innerHTML = '⟳ Refreshing...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                refreshCharts();
+                this.innerHTML = '🔄 Refresh Charts';
+                this.disabled = false;
+            }, 1000);
+        });
+        
+        // Real-time data simulation (optional)
+        setInterval(function() {
+            // Auto-refresh every 30 seconds
+            const shouldRefresh = Math.random() < 0.1; // 10% chance
+            if (shouldRefresh) {
+                refreshCharts();
+            }
+        }, 30000);
+        
+        // Add hover effects to stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 4px 20px rgba(0,0,0,0.12)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 2px 10px rgba(0,0,0,0.08)';
+            });
+        });
+    </script>
+</body>
+</html>

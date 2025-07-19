@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ iREPORT - Cybersecurity Reporting Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🛡️</div>
+            <span>iREPORT</span>
+        </div>
+        <div class="welcome-text">WELCOME</div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="welcome-card">
+            <h1 class="welcome-title">Welcome to iREPORT</h1>
+            <p class="welcome-subtitle">Your Cybersecurity Reporting Platform</p>
+            
+            <div class="button-group">
+                <a href="{{ url_for('auth.login') }}" class="btn btn-login">
+                    🔐 Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-register">
+                    👤 Register
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
